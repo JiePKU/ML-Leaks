@@ -34,8 +34,10 @@ def setup_seed(seed):
      random.seed(seed)
      torch.backends.cudnn.deterministic = True
 
-
-setup_seed(42)
+if opt.dataset=='cifar10':
+    setup_seed(17) ## for cifar10
+elif opt.dataset=='mnist':
+    setup_seed(42) ## for mnist
 
 class Attacker(nn.Module):
     def __init__(self, n_in, n_out=2, hidden = 64):
@@ -50,8 +52,6 @@ class Attacker(nn.Module):
         x = self.softmax(x)
         return x
 	
-
-
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 ### divide and load dataset for shadow/target model training
@@ -92,7 +92,6 @@ shadow_model.to(device)
 print('train shadow/target model')
 shadow_model = train_model(device, shadow_train_loader, shadow_out_loader, shadow_model, epochs=50, learning_rate=0.001, l2_ratio=1e-7)
 target_model = train_model(device, train_loader, test_loader, target_model, epochs=50, learning_rate=0.001, l2_ratio=1e-7)
-
 
 ## generate dataset to train attacker
 attacktrainset, attacktestset = wrap_collect_outputs_and_labels(shadow_train_loader, shadow_out_loader, train_loader, test_loader, shadow_model, target_model, num_classes)

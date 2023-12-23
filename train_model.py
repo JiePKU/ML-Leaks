@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import accuracy_score, classification_report
 
-# 使用函数加载并分割 MNIST 数据集
+# 
 # shadow_train_loader, shadow_out_loader, train_loader, test_loader, num_classes = load_and_split_dataset()
 
 def train_model(device, train_loader, test_loader, model, epochs=100, learning_rate=0.01, l2_ratio=1e-7):

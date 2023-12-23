@@ -3,21 +3,16 @@ from torchvision import datasets, transforms
 from torch.utils.data import Subset, DataLoader
 import numpy as np
 import torch.nn as nn
-import torch.optim as optim
-from sklearn.metrics import accuracy_score, classification_report
-import torch.nn.functional as F
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 
 
 def load_and_split_dataset(dataset_type='cifar10', batch_size=64, root='/home/pc/zhujie/data/cifar10'):
-    # 设置随机数种子，以确保实验的可重复性
-    # np.random.seed(42)
-    # torch.manual_seed(42)
 
-    # 加载数据集
+
+    # load dataset
     if dataset_type == 'mnist':
-        # 定义数据转换
+        # define data pipeline
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
         train_dataset_total = datasets.MNIST(root=root, train=True, download=True, transform=transform)
         num_classes = 10
@@ -30,30 +25,31 @@ def load_and_split_dataset(dataset_type='cifar10', batch_size=64, root='/home/pc
     else:
         raise ValueError("Unsupported dataset type. Supported types are 'mnist' and 'cifar10'.")
 
-    # 划分数据集
+    # divide the dataset
     total_size = len(train_dataset_total)
     subset_size = total_size // 4
     # 
-    # 生成划分的索引
+    # generate the index
     indices = np.random.permutation(total_size)
     print(indices[:10]) 
+    
     """
-    [33553  9427   199 12447 39489 42724 10822 49498  4144 36958] the order generated in my machine for cifar10
+    [20061 33675 33022  7405 25549 22179  1210 40685 23029  3124] the order generated in my machine for cifar10
     [12628 37730 39991  8525  8279 51012 14871 15127  9366 33322] the order generated in my machine for mnist
     """
-    # 创建数据集子集
+    # create subset
     shadow_train_dataset = Subset(train_dataset_total, indices[:subset_size])
     shadow_out_dataset = Subset(train_dataset_total, indices[subset_size:2 * subset_size])
     train_dataset = Subset(train_dataset_total, indices[2 * subset_size:3 * subset_size])
     test_dataset = Subset(train_dataset_total, indices[3 * subset_size:])
 
-    # 创建数据加载器
+    # create dataloader
     shadow_train_loader = DataLoader(shadow_train_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
     shadow_out_loader = DataLoader(shadow_out_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=8)
 
-    # 打印各数据集的大小
+    # print data size
     print(f"Shadow Train Size: {len(shadow_train_loader.dataset)}")
     print(f"Shadow Out Size: {len(shadow_out_loader.dataset)}")
     print(f"Train Size: {len(train_loader.dataset)}")
