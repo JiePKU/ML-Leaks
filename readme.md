@@ -4,9 +4,13 @@
 ## Requirement
 
 python=3.8.13
+
 torch=1.12.0
+
 torchvision=0.13.0
+
 numpy=1.22.3
+
 scikit-learn=1.2.0
 
 
